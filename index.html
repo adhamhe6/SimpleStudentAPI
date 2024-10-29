@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f5f6fa;
+            color: #333;
+        }
+        h1 {
+            color: #273c75;
+        }
+        .form-container, .student-list {
+            width: 100%;
+            max-width: 600px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+        .btn {
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            margin-top: 10px;
+        }
+        .btn-add { background-color: #44bd32; }
+        .btn-update { background-color: #e1b12c; }
+        .btn-delete { background-color: #e84118; }
+        .btn-read { background-color: #00a8ff; }
+        .student-list-item {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .student-list-item strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Student Management</h1>
+    <div class="form-container">
+        <h3>Enter Student Information</h3>
+        <div class="form-group">
+            <label for="studentId">ID</label>
+            <input type="number" id="studentId" placeholder="Enter student ID" required>
+        </div>
+        <div class="form-group">
+            <label for="studentName">Name</label>
+            <input type="text" id="studentName" placeholder="Enter student name" required>
+        </div>
+        <div class="form-group">
+            <label for="studentGrade">Grade</label>
+            <input type="number" id="studentGrade" placeholder="Enter student grade" required>
+        </div>
+        <div class="buttons">
+            <button class="btn btn-add" onclick="addStudent()">Add</button>
+            <button class="btn btn-update" onclick="updateStudent()">Update</button>
+            <button class="btn btn-delete" onclick="deleteStudent()">Delete</button>
+            <button class="btn btn-read" onclick="fetchStudents()">View All</button>
+            <button class="btn" style="background-color: #c4c4c4; color: black;" onclick="resetFields()">Reset</button>
+        </div>
+    </div>
+
+    <div class="student-list" id="studentList">
+        <h3>Student List</h3>
+        <!-- Student data will be populated here -->
+    </div>
+
+    <script>
+        const apiUrl = 'http://127.0.0.1:8000/students';
+        {% comment %} const apiUrl = 'https://simplestudentapi.onrender.com/students'; {% endcomment %}
+        const studentList = document.getElementById('studentList');
+
+        function fetchStudents() {
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(students => {
+                    studentList.innerHTML = '<h3>Student List</h3>';
+                    students.forEach(student => {
+                        const studentItem = document.createElement('div');
+                        studentItem.className = 'student-list-item';
+                        studentItem.innerHTML = `
+                            <strong>ID: ${student.id}</strong>
+                            <strong>Name: ${student.name}</strong>
+                            <strong>Grade: ${student.grade}</strong>
+                        `;
+                        studentList.appendChild(studentItem);
+                    });
+                })
+                .catch(error => console.error('Error fetching students:', error));
+        }
+
+        function addStudent() {
+            const id = parseInt(document.getElementById('studentId').value);
+            const name = document.getElementById('studentName').value;
+            const grade = parseInt(document.getElementById('studentGrade').value);
+
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, name, grade })
+            })
+            .then(response => response.json())
+            .then(() => fetchStudents())
+            .catch(error => console.error('Error adding student:', error));
+        }
+
+        function updateStudent() {
+            const id = parseInt(document.getElementById('studentId').value);
+            const name = document.getElementById('studentName').value;
+            const grade = parseInt(document.getElementById('studentGrade').value);
+
+            fetch(`${apiUrl}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, name, grade })
+            })
+            .then(response => response.json())
+            .then(() => fetchStudents())
+            .catch(error => console.error('Error updating student:', error));
+        }
+
+        function deleteStudent() {
+            const id = parseInt(document.getElementById('studentId').value);
+
+            fetch(`${apiUrl}/${id}`, { method: 'DELETE' })
+                .then(response => response.json())
+                .then(() => fetchStudents())
+                .catch(error => console.error('Error deleting student:', error));
+        }
+
+        function resetFields() {
+            document.getElementById('studentId').value = '';
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentGrade').value = '';
+        }        
+    </script>
+
+</body>
+</html>
