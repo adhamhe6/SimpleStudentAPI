@@ -43,3 +43,10 @@ uvicorn main:app --reload
 
 The API will be available at [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
+## Database Setup
+
+The API uses an SQLite database (`students.db`) for persistent storage of student records. The database is automatically created upon running the API for the first time.
+
+### Notes:
+- This updated README includes information about SQLite and SQLAlchemy, highlighting their role in the project.
+- Adjust any specifics based on your implementation or additional features you might want to include!
